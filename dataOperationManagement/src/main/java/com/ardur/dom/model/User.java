@@ -1,11 +1,8 @@
 package com.ardur.dom.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.ardur.dom.user.domain.Role; // Import the Role enum
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +22,7 @@ public class User {
 
     @Column(name = "first_name")
     private String firstName;
-    
+
     @Column(name = "last_name")
     private String lastName;
 
@@ -34,16 +31,15 @@ public class User {
 
     @Column(name = "email")
     private String email;
-    
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses=new ArrayList<>();
-    
+    @Column(name = "address")
+    private String address; // Address as a string
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role; // Role field imported from the Role enum
+
     private LocalDateTime createdAt;
-
-	public User() {
-		super();
-	}
 
 	public Long getId() {
 		return id;
@@ -85,12 +81,20 @@ public class User {
 		this.email = email;
 	}
 
-	public List<Address> getAddresses() {
-		return addresses;
+	public String getAddress() {
+		return address;
 	}
 
-	public void setAddresses(List<Address> addresses) {
-		this.addresses = addresses;
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -100,9 +104,33 @@ public class User {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-	
+
+	public User() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public User(Long id, String firstName, String lastName, String password, String email, String address, Role role,
+			LocalDateTime createdAt) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.password = password;
+		this.email = email;
+		this.address = address;
+		this.role = role;
+		this.createdAt = createdAt;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", password=" + password
+				+ ", email=" + email + ", address=" + address + ", role=" + role + ", createdAt=" + createdAt + "]";
+	} 
 	
     
     
+   
     
 }

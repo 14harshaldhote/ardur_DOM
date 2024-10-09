@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.CsrfDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,7 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
-
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class AppConfig {
 
@@ -26,6 +27,7 @@ public class AppConfig {
 		.and()
 		.authorizeHttpRequests(Authorize -> Authorize
 				.requestMatchers("/api/**").authenticated()
+                .requestMatchers("/admin/**").authenticated() // Protect admin endpoints
 				.anyRequest()
 				.permitAll()
 				)
