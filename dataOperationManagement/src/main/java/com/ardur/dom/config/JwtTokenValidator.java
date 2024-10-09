@@ -1,6 +1,7 @@
 package com.ardur.dom.config;
 
-import java.io.IOException;
+import java.io.IOException;import java.security.SignatureException;
+
 import java.util.List;
 
 import javax.crypto.SecretKey;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -24,40 +26,62 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
 
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+//            throws ServletException, IOException {
+//        String jwt = request.getHeader(JwtConstant.JWT_HEADER);
+//
+////        if (jwt != null && jwt.startsWith("Bearer ")) 
+//        if (jwt != null)
+//        {
+//        	jwt=jwt.substring(7);
+//            try {
+//                SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
+//                Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+//                
+//                String email = String.valueOf(claims.get("email"));
+//                String authorities=String.valueOf(claims.get("authorities"));
+//                List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+//                
+//                Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, auths);
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//            } catch (Exception e) {
+//                throw new BadCredentialsException("Token is invalid.......");
+//            }
+//        }
+//        filterChain.doFilter(request, response);
+//    }
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		
-		String jwt= request.getHeader(JwtConstant.JWT_HEADER);
-		System.out.println("jwt ------ "+jwt);
-		if(jwt!=null) {
-			jwt=jwt.substring(7);
-			System.out.println("jwt ------"+jwt);
-			try {
-				SecretKey key=Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
-				
-				Claims claims=Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
-				
-				String email=String.valueOf(claims.get("email"));
-				
-				String authorities=String.valueOf(claims.get("authorities"));
-				
-				
-				List<GrantedAuthority> auths=AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
-				Authentication authentication=new UsernamePasswordAuthenticationToken(email,null, auths);
-				
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-			}
-			catch (Exception e) {
-				throw new BadCredentialsException("Token is invalid...from validator");
-				// TODO: handle exception
-			}
-		}
-		filterChain.doFilter(request, response);
-		
+	        throws ServletException, IOException {
+	    String jwt = request.getHeader(JwtConstant.JWT_HEADER);
+
+	    if (jwt != null && jwt.startsWith("Bearer ")) {
+	        jwt = jwt.substring(7); // Remove the "Bearer " prefix
+	        try {
+	            SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
+	            Claims claims = Jwts.parserBuilder()
+	            		.setSigningKey(key)
+	            		.build()
+	            		.parseClaimsJws(jwt)
+	            		.getBody();
+	            
+	            String email = String.valueOf(claims.get("email"));
+	            String authorities = String.valueOf(claims.get("authorities"));
+	            List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+	            
+	            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, auths);
+	            SecurityContextHolder.getContext().setAuthentication(authentication);
+	        } catch (ExpiredJwtException e) {
+	            throw new BadCredentialsException("Token is expired", e);
+	        } catch (io.jsonwebtoken.JwtException e) {  // Catch all JWT exceptions
+	            throw new BadCredentialsException("Token is invalid", e);
+	        } catch (Exception e) {
+	            throw new BadCredentialsException("Token is invalid.......");
+	        }
+	    }
+	    filterChain.doFilter(request, response);
 	}
 
-	
 
 }

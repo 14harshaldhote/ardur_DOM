@@ -21,6 +21,11 @@ public class AuthResponse {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	public AuthResponse() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
 	
 	
 
